@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="{{ url_for('index') }}">{{ app_name }}</a></h1>
+            <nav>
+                <a href="{{ url_for('index') }}">Assets</a>
+                <a href="{{ url_for('asset_new') }}">+ New Asset</a>
+                <a href="/health" target="_blank">Health</a>
+                <a href="/info" target="_blank">Info</a>
+                <a href="/stats" target="_blank">Stats</a>
+            </nav>
+        </div>
+        <div class="container hostbar">
+            Host: <strong>{{ hostname }}</strong>
+        </div>
+    </header>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if error %}
+            <div class="flash flash-error">{{ error }}</div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <small>{{ app_name }} &middot; M2VM Test Application &middot; &copy; {{ current_year }}</small>
+        </div>
+    </footer>
+</body>
+</html>

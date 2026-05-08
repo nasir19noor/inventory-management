@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Asset Inventory</h2>
+    <span class="muted">Total: {{ pagination.total }} assets</span>
+</div>
+
+<form class="filter-bar" method="GET" action="{{ url_for('index') }}">
+    <input type="text" name="q" placeholder="Search by name, serial, location..." value="{{ search }}">
+    <select name="status">
+        <option value="">All status</option>
+        {% for s in statuses %}
+            <option value="{{ s }}" {% if status_filter == s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+    </select>
+    <select name="category">
+        <option value="">All categories</option>
+        {% for c in categories %}
+            <option value="{{ c.id }}" {% if category_filter == c.id|string %}selected{% endif %}>{{ c.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Filter</button>
+    <a href="{{ url_for('index') }}" class="btn-clear">Clear</a>
+</form>
+
+{% if assets %}
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Serial</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Updated</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for asset in assets %}
+        <tr>
+            <td>{{ asset.id }}</td>
+            <td><code>{{ asset.serial_number }}</code></td>
+            <td><a href="{{ url_for('asset_detail', asset_id=asset.id) }}">{{ asset.name }}</a></td>
+            <td>{{ asset.category.name if asset.category else '-' }}</td>
+            <td>{{ asset.location or '-' }}</td>
+            <td><span class="badge badge-{{ asset.status }}">{{ asset.status }}</span></td>
+            <td><small>{{ asset.updated_at.strftime('%Y-%m-%d %H:%M') }}</small></td>
+            <td>
+                <a href="{{ url_for('asset_detail', asset_id=asset.id) }}" class="btn-sm">View</a>
+                <a href="{{ url_for('asset_edit', asset_id=asset.id) }}" class="btn-sm">Edit</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="pagination">
+    {% if pagination.has_prev %}
+        <a href="{{ url_for('index', page=pagination.prev_num, q=search, status=status_filter, category=category_filter) }}">&laquo; Prev</a>
+    {% endif %}
+    <span>Page {{ pagination.page }} of {{ pagination.pages }}</span>
+    {% if pagination.has_next %}
+        <a href="{{ url_for('index', page=pagination.next_num, q=search, status=status_filter, category=category_filter) }}">Next &raquo;</a>
+    {% endif %}
+</div>
+
+{% else %}
+<div class="empty">
+    <p>No assets found.</p>
+    <a href="{{ url_for('asset_new') }}" class="btn">Create First Asset</a>
+</div>
+{% endif %}
+{% endblock %}

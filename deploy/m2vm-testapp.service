@@ -1,0 +1,34 @@
+[Unit]
+Description=M2VM Test App - Asset Inventory (Flask)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=m2vm
+Group=m2vm
+WorkingDirectory=/opt/m2vm_testapp
+Environment="PATH=/opt/m2vm_testapp/venv/bin"
+EnvironmentFile=/opt/m2vm_testapp/.env
+
+ExecStart=/opt/m2vm_testapp/venv/bin/gunicorn \
+    --bind 127.0.0.1:8000 \
+    --workers 4 \
+    --threads 2 \
+    --timeout 60 \
+    --access-logfile - \
+    --error-logfile - \
+    app:app
+
+Restart=always
+RestartSec=5
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/m2vm_testapp
+
+[Install]
+WantedBy=multi-user.target

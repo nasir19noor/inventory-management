@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{{ asset.name }}</h2>
+    <div>
+        <a href="{{ url_for('asset_edit', asset_id=asset.id) }}" class="btn">Edit</a>
+        <form method="POST" action="{{ url_for('asset_delete', asset_id=asset.id) }}" style="display:inline" onsubmit="return confirm('Are you sure?')">
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+        <a href="{{ url_for('index') }}" class="btn-back">&laquo; Back</a>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <dl class="detail-list">
+        <dt>ID</dt>
+        <dd>{{ asset.id }}</dd>
+
+        <dt>Serial Number</dt>
+        <dd><code>{{ asset.serial_number }}</code></dd>
+
+        <dt>Category</dt>
+        <dd>{{ asset.category.name if asset.category else '-' }}</dd>
+
+        <dt>Location</dt>
+        <dd>{{ asset.location or '-' }}</dd>
+
+        <dt>Status</dt>
+        <dd><span class="badge badge-{{ asset.status }}">{{ asset.status }}</span></dd>
+
+        <dt>Purchase Price</dt>
+        <dd>{% if asset.purchase_price %}IDR {{ "{:,.0f}".format(asset.purchase_price) }}{% else %}-{% endif %}</dd>
+
+        <dt>Purchase Date</dt>
+        <dd>{{ asset.purchase_date.strftime('%d %B %Y') if asset.purchase_date else '-' }}</dd>
+
+        <dt>Notes</dt>
+        <dd>{{ asset.notes or '-' }}</dd>
+
+        <dt>Created</dt>
+        <dd><small>{{ asset.created_at.strftime('%Y-%m-%d %H:%M:%S') }} UTC</small></dd>
+
+        <dt>Last Updated</dt>
+        <dd><small>{{ asset.updated_at.strftime('%Y-%m-%d %H:%M:%S') }} UTC</small></dd>
+    </dl>
+</div>
+
+<h3>Audit Log (last 50 entries)</h3>
+{% if logs %}
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Timestamp</th>
+            <th>Action</th>
+            <th>Field</th>
+            <th>Old Value</th>
+            <th>New Value</th>
+            <th>Actor</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+        <tr>
+            <td><small>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small></td>
+            <td><span class="badge badge-{{ log.action|lower }}">{{ log.action }}</span></td>
+            <td><code>{{ log.field_changed or '-' }}</code></td>
+            <td><small>{{ log.old_value[:50] + '...' if log.old_value and log.old_value|length > 50 else log.old_value or '-' }}</small></td>
+            <td><small>{{ log.new_value[:50] + '...' if log.new_value and log.new_value|length > 50 else log.new_value or '-' }}</small></td>
+            <td><small>{{ log.actor }}</small></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="muted">No audit log entries.</p>
+{% endif %}
+{% endblock %}

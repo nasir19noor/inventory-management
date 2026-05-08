@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{% if asset %}Edit Asset: {{ asset.serial_number }}{% else %}New Asset{% endif %}</h2>
+    <a href="{{ url_for('index') }}" class="btn-back">&laquo; Back to list</a>
+</div>
+
+<form method="POST" class="form">
+    <div class="form-row">
+        <label>Name <span class="req">*</span></label>
+        <input type="text" name="name" required value="{{ asset.name if asset else '' }}" maxlength="200">
+    </div>
+
+    <div class="form-row">
+        <label>Serial Number <span class="req">*</span></label>
+        <input type="text" name="serial_number" required value="{{ asset.serial_number if asset else '' }}" maxlength="100">
+        <small>Must be unique</small>
+    </div>
+
+    <div class="form-row">
+        <label>Category <span class="req">*</span></label>
+        <select name="category_id" required>
+            <option value="">-- Select category --</option>
+            {% for c in categories %}
+                <option value="{{ c.id }}" {% if asset and asset.category_id == c.id %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label>Location</label>
+        <input type="text" name="location" value="{{ asset.location if asset else '' }}" maxlength="200">
+    </div>
+
+    <div class="form-row">
+        <label>Status</label>
+        <select name="status">
+            {% for s in ['active', 'in_repair', 'retired', 'lost'] %}
+                <option value="{{ s }}" {% if asset and asset.status == s %}selected{% elif not asset and s == 'active' %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label>Purchase Price (IDR)</label>
+        <input type="number" name="purchase_price" step="0.01" min="0" value="{{ asset.purchase_price if asset and asset.purchase_price else '' }}">
+    </div>
+
+    <div class="form-row">
+        <label>Purchase Date</label>
+        <input type="date" name="purchase_date" value="{{ asset.purchase_date.isoformat() if asset and asset.purchase_date else '' }}">
+    </div>
+
+    <div class="form-row">
+        <label>Notes</label>
+        <textarea name="notes" rows="4">{{ asset.notes if asset else '' }}</textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            {% if asset %}Update Asset{% else %}Create Asset{% endif %}
+        </button>
+        <a href="{{ url_for('index') }}" class="btn">Cancel</a>
+    </div>
+</form>
+{% endblock %}
